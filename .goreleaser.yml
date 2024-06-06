@@ -4,7 +4,7 @@ release:
   footer: |
     ### For installing in Linux & OSX:
     ```
-    curl -L https://github.com/appknox/appknox-go/releases/download/{{.Version}}/appknox-`uname -s`-x86_64 > /usr/local/bin/appknox && chmod +x /usr/local/bin/appknox
+    curl -L https://github.com/appknox/appknox-go/releases/download/{{.Version}}/appknox-`uname -s`-`uname -m` > /usr/local/bin/appknox && chmod +x /usr/local/bin/appknox
     ```
 
 before:
@@ -23,16 +23,26 @@ builds:
       - windows
     goarch:
       - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
 archives:
   - format: binary
-    # name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
     name_template: >-
       {{- .ProjectName }}-
       {{- title .Os }}-
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end -}}
+      {{- if eq .Os "darwin" }}
+        {{- if eq .Arch "amd64" }}x86_64{{- end}}
+        {{- if eq .Arch "arm64" }}arm64{{- end}}
+      {{- end}}
+      {{- if eq .Os "windows" }}
+          {{- if eq .Arch "amd64" }}x86_64{{- end}}
+      {{- end }}
+      {{- if eq .Os "linux" }}
+          {{- if eq .Arch "amd64" }}x86_64{{- end}}
+          {{- if eq .Arch "arm64" }}aarch64{{- end}}
+      {{- end }}
 checksum:
   name_template: "checksums.txt"
 snapshot:
