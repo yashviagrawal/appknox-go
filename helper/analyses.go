@@ -36,7 +36,7 @@ func ProcessAnalyses(fileID int) {
 	// header is an interface because t.AddHeader only supports
 	// interface elements
 	header := []interface{}{"ID", "RISK", "STATUS", "CVSS-VECTOR", "CVSS-BASE", "CVSS-VERSION", "OWASP", "ASVS", "CWE",
-		"MSTG", "OWASP API 2023", "OWASP MASVS (v2)", "NIST SP 800-53", "NIST SP 800-171", "OWASP MOBILE 2024"}
+		"MSTG", "OWASP API 2023", "OWASP MASVS (v2)", "OWASP MOBILE 2024"}
 	if profileReportPref.ShowPcidss.Value {
 		header = append(header, "PCI-DSS")
 	}
@@ -45,6 +45,13 @@ func ProcessAnalyses(fileID int) {
 	}
 	if profileReportPref.ShowGdpr.Value {
 		header = append(header, "GDPR")
+	}
+	if profileReportPref.ShowNist.Value {
+		header = append(header, "NIST SP 800-53")
+		header = append(header, "NIST SP 800-171")
+	}
+	if profileReportPref.ShowSama.Value {
+		header = append(header, "SAMA")
 	}
 	header = append(header, "UPDATED-ON", "VULNERABILITY-ID")
 	t.AddHeader(header...)
@@ -64,8 +71,6 @@ func ProcessAnalyses(fileID int) {
 			finalAnalyses[i].Mstg,
 			finalAnalyses[i].Owaspapi2023,
 			finalAnalyses[i].Masvs,
-			finalAnalyses[i].Nistsp80053,
-			finalAnalyses[i].Nistsp800171,
 			finalAnalyses[i].Owaspmobile2024,
 		}
 		if profileReportPref.ShowPcidss.Value {
@@ -76,6 +81,13 @@ func ProcessAnalyses(fileID int) {
 		}
 		if profileReportPref.ShowGdpr.Value {
 			row = append(row, finalAnalyses[i].Gdpr)
+		}
+		if profileReportPref.ShowNist.Value {
+			row = append(row, finalAnalyses[i].Nistsp80053)
+			row = append(row, finalAnalyses[i].Nistsp800171)
+		}
+		if profileReportPref.ShowSama.Value {
+			row = append(row, finalAnalyses[i].Sama)
 		}
 		row = append(row, *finalAnalyses[i].UpdatedOn,
 			finalAnalyses[i].VulnerabilityID)

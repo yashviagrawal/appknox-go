@@ -18,17 +18,21 @@ func TestRegulatoryPreference_marshall(t *testing.T) {
 }
 func TestProjectProfileReportPreference_marshall(t *testing.T) {
 	testJSONMarshal(t, &ProjectProfileReportPreference{},
-		`{"show_pcidss":{}, "show_hipaa":{}, "show_gdpr":{}}`)
+		`{"show_pcidss":{}, "show_hipaa":{}, "show_gdpr":{}, "show_nist":{}, "show_sama":{}}`)
 
 	u := &ProjectProfileReportPreference{
 		ShowPcidss: RegulatoryPreference{Value: true},
 		ShowHipaa:  RegulatoryPreference{Value: true},
 		ShowGdpr:   RegulatoryPreference{Value: true},
+		ShowNist:   RegulatoryPreference{Value: true},
+		ShowSama:   RegulatoryPreference{Value: true},
 	}
 	want := `{
 		"show_pcidss": {"value": true},
 		"show_hipaa": {"value": true},
-		"show_gdpr": {"value": true}
+		"show_gdpr": {"value": true},
+		"show_nist": {"value": true},
+		"show_sama": {"value": true}
 	}`
 	testJSONMarshal(t, u, want)
 }
@@ -46,7 +50,9 @@ func TestProjectProfilesService_GetProjectProfileReportPreference(t *testing.T) 
 		fmt.Fprint(w, `{
 			"show_pcidss": {"value": true},
 			"show_hipaa": {"value": true},
-			"show_gdpr": {"value": false}
+			"show_gdpr": {"value": false},
+			"show_nist": {"value": false},
+			"show_sama": {"value": false}
 		}`)
 	})
 
@@ -59,6 +65,8 @@ func TestProjectProfilesService_GetProjectProfileReportPreference(t *testing.T) 
 		ShowPcidss: RegulatoryPreference{Value: true},
 		ShowHipaa:  RegulatoryPreference{Value: true},
 		ShowGdpr:   RegulatoryPreference{Value: false},
+		ShowNist:   RegulatoryPreference{Value: false},
+		ShowSama:   RegulatoryPreference{Value: false},
 	}
 	if !reflect.DeepEqual(profileReportPreference, want) {
 		t.Errorf("ProjectProfiles.GetProjectProfileReportPreference returned %+v, want %+v",

@@ -49,6 +49,7 @@ func TestAnalysesCompliance_marshall(t *testing.T) {
 		Masvs:           []string{"MASVS_6_3"},
 		Nistsp80053:     []string{"AC_3", "RA_2"},
 		Nistsp800171:    []string{"3_1_1", "3_1_3"},
+		Sama:            []string{"3_3_6"},
 		Owaspmobile2024: []string{"M6_2024"},
 		VulnerabilityID: 1,
 	}
@@ -65,6 +66,7 @@ func TestAnalysesCompliance_marshall(t *testing.T) {
 		"masvs": ["MASVS_6_3"],
 		"nistsp80053": ["AC_3", "RA_2"],
 		"nistsp800171": ["3_1_1", "3_1_3"],
+		"sama": ["3_3_6"],
 		"owaspmobile2024": ["M6_2024"],
 		"vulnerability": 1
 	}`
