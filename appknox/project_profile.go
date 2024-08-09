@@ -18,6 +18,8 @@ type ProjectProfileReportPreference struct {
 	ShowPcidss RegulatoryPreference `json:"show_pcidss,omitempty"`
 	ShowHipaa  RegulatoryPreference `json:"show_hipaa,omitempty"`
 	ShowGdpr   RegulatoryPreference `json:"show_gdpr,omitempty"`
+	ShowNist   RegulatoryPreference `json:"show_nist,omitempty"`
+	ShowSama   RegulatoryPreference `json:"show_sama,omitempty"`
 }
 
 // CurrentAuthenticatedUser is used to get the details about the current

@@ -107,6 +107,7 @@ type Analysis struct {
 	Masvs           []string                `json:"masvs,omitempty"`
 	Nistsp80053     []string                `json:"nistsp80053,omitempty"`
 	Nistsp800171    []string                `json:"nistsp800171,omitempty"`
+	Sama            []string                `json:"sama,omitempty"`
 	Owaspmobile2024 []string                `json:"owaspmobile2024,omitempty"`
 	Findings        []Finding               `json:"findings,omitempty"`
 	UpdatedOn       *time.Time              `json:"updated_on,omitempty"`
