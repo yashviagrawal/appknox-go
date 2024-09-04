@@ -24,29 +24,76 @@ func getAppknoxAccessToken() string {
 	return accessToken
 }
 
-func getClient() *appknox.Client {
-	token := getAppknoxAccessToken()
-	host := viper.GetString("host")
-	client, err := appknox.NewClient(token)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	proxyURL, err := GetProxy()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	insecure := viper.GetBool("insecure")
-	client = client.SetHTTPTransportParams(proxyURL, insecure)
-	baseHost, err := url.Parse(host)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	client.BaseURL = baseHost
-	return client
+// GetHostMappings returns a map of host names to URLs.
+ func GetHostMappings() map[string]string {
+     return map[string]string{
+         "default": "https://api.appknox.com/",
+         "saudi":   "https://sa.secure.appknox.com/",
+         // Add more mappings as needed
+     }
+ }
+
+func getAPIHostMappings() map[string]string {
+    // Instead of using an environment variable, call the new function
+    return GetHostMappings()
 }
+
+func getClient() *appknox.Client {
+    token := getAppknoxAccessToken()
+
+    // Check for region first
+    region := viper.GetString("region")
+    host := viper.GetString("host")
+
+    // Get the API host mappings
+    hostMappings := getAPIHostMappings()
+
+    if region != "" {
+        // Check if region exists in the mappings
+        if mappedHost, exists := hostMappings[region]; exists {
+            host = mappedHost
+        } else {
+            // Invalid region, throw error and show available regions
+            availableRegions := make([]string, 0, len(hostMappings))
+            for key := range hostMappings {
+                availableRegions = append(availableRegions, key)
+            }
+            fmt.Printf("Invalid region name: %s. Available regions: %s\n", region, strings.Join(availableRegions, ", "))
+            os.Exit(1)
+        }
+    } else {
+        // Validate the host is a proper URL if no region is passed
+        _, err := url.ParseRequestURI(host)
+        if err != nil {
+            fmt.Printf("Invalid host URL: %s\n", host)
+            os.Exit(1)
+        }
+    }
+
+    client, err := appknox.NewClient(token)
+    if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
+
+    proxyURL, err := GetProxy()
+    if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
+
+    insecure := viper.GetBool("insecure")
+    client = client.SetHTTPTransportParams(proxyURL, insecure)
+
+    baseHost, err := url.Parse(host)
+    if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
+    client.BaseURL = baseHost
+    return client
+}
+
 
 // CheckToken checks if access token is valid.
 func CheckToken() (*appknox.Me, error) {
