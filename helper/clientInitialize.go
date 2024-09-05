@@ -27,7 +27,7 @@ func getAppknoxAccessToken() string {
 // GetHostMappings returns a map of host names to URLs.
  func GetHostMappings() map[string]string {
      return map[string]string{
-         "default": "https://api.appknox.com/",
+         "global": "https://api.appknox.com/",
          "saudi":   "https://sa.secure.appknox.com/",
          // Add more mappings as needed
      }

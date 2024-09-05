@@ -33,6 +33,7 @@ Flags:
   -k, --insecure              Disable Security Checks
       --pac string            pac file path or url
       --proxy string          proxy url
+      --region string         Region names like global, saudi, uae
       --version               version for appknox
 
 Use "appknox [command] --help" for more information about a command.
