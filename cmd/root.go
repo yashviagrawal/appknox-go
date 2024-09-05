@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/appknox/appknox-go/appknox"
+	// "github.com/appknox/appknox-go/appknox"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -35,10 +35,10 @@ func init() {
 	viper.BindEnv("access-token", "APPKNOX_ACCESS_TOKEN")
 	viper.SetDefault("access-token", "")
 
-	RootCmd.PersistentFlags().String("host", appknox.DefaultAPIHost, "Appknox Server")
-	viper.BindPFlag("host", RootCmd.PersistentFlags().Lookup("host"))
-	viper.BindEnv("host", "APPKNOX_API_HOST")
-	viper.SetDefault("host", appknox.DefaultAPIHost)
+	RootCmd.PersistentFlags().String("host", "", "Appknox Server") // No default value here
+    viper.BindPFlag("host", RootCmd.PersistentFlags().Lookup("host"))
+    viper.BindEnv("host", "APPKNOX_API_HOST")
+
 
 	RootCmd.PersistentFlags().String("region", "", "Region names, e.g., global, saudi, uae. By default, global is used")
     viper.BindPFlag("region", RootCmd.PersistentFlags().Lookup("region"))

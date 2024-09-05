@@ -41,28 +41,36 @@ func getAPIHostMappings() map[string]string {
 func getClient() *appknox.Client {
     token := getAppknoxAccessToken()
 
-    // Check for region first
+    // Check for region and host first
     region := viper.GetString("region")
     host := viper.GetString("host")
 
     // Get the API host mappings
     hostMappings := getAPIHostMappings()
 
-    if region != "" {
-        // Check if region exists in the mappings
-        if mappedHost, exists := hostMappings[region]; exists {
-            host = mappedHost
-        } else {
-            // Invalid region, throw error and show available regions
-            availableRegions := make([]string, 0, len(hostMappings))
-            for key := range hostMappings {
-                availableRegions = append(availableRegions, key)
+    // If host is empty, that means it was not explicitly provided, so we check the region
+    if host == "" {
+        if region != "" {
+            // Check if region exists in the mappings
+            if mappedHost, exists := hostMappings[region]; exists {
+                host = mappedHost
+            } else {
+                // Invalid region, throw error and show available regions
+                availableRegions := make([]string, 0, len(hostMappings))
+                for key := range hostMappings {
+                    availableRegions = append(availableRegions, key)
+                }
+                fmt.Printf("Invalid region name: %s. Available regions: %s\n", region, strings.Join(availableRegions, ", "))
+                os.Exit(1)
             }
-            fmt.Printf("Invalid region name: %s. Available regions: %s\n", region, strings.Join(availableRegions, ", "))
-            os.Exit(1)
+        } else {
+            // If neither host nor region are provided, default to the global host
+            host = hostMappings["global"]
         }
     } else {
-        // Validate the host is a proper URL if no region is passed
+        // If both region and host are provided, prioritize host and ignore region
+        fmt.Printf("Both region and host provided. Using host URL: %s, ignoring region\n", host)
+        // Validate the host is a proper URL
         _, err := url.ParseRequestURI(host)
         if err != nil {
             fmt.Printf("Invalid host URL: %s\n", host)
@@ -93,6 +101,7 @@ func getClient() *appknox.Client {
     client.BaseURL = baseHost
     return client
 }
+
 
 
 // CheckToken checks if access token is valid.
