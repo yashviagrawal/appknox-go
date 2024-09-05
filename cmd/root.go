@@ -40,7 +40,7 @@ func init() {
 	viper.BindEnv("host", "APPKNOX_API_HOST")
 	viper.SetDefault("host", appknox.DefaultAPIHost)
 
-	RootCmd.PersistentFlags().String("region", "", "Region names like global, saudi, uae")
+	RootCmd.PersistentFlags().String("region", "", "Region names, e.g., global, saudi, uae. By default, global is used")
     viper.BindPFlag("region", RootCmd.PersistentFlags().Lookup("region"))
     viper.BindEnv("region", "APPKNOX_API_REGION")
     viper.SetDefault("region", "")
