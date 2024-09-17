@@ -33,11 +33,6 @@ func getAppknoxAccessToken() string {
      }
  }
 
-func getAPIHostMappings() map[string]string {
-    // Instead of using an environment variable, call the new function
-    return GetHostMappings()
-}
-
 func getClient() *appknox.Client {
     token := getAppknoxAccessToken()
 
@@ -45,8 +40,8 @@ func getClient() *appknox.Client {
     region := viper.GetString("region")
     host := viper.GetString("host")
 
-    // Get the API host mappings
-    hostMappings := getAPIHostMappings()
+    // Get the host mappings
+    hostMappings := GetHostMappings()
 
     // If host is empty, that means it was not explicitly provided, so we check the region
     if host == "" {

@@ -43,7 +43,7 @@ func init() {
 	RootCmd.PersistentFlags().String("region", "", "Region names, e.g., global, saudi, uae. By default, global is used")
     viper.BindPFlag("region", RootCmd.PersistentFlags().Lookup("region"))
     viper.BindEnv("region", "APPKNOX_API_REGION")
-    viper.SetDefault("region", "")
+    viper.SetDefault("region", "global")
 
 	RootCmd.PersistentFlags().String("proxy", "", "proxy url")
 	viper.BindPFlag("proxy", RootCmd.PersistentFlags().Lookup("proxy"))
