@@ -33,37 +33,35 @@ func getAppknoxAccessToken() string {
      }
  }
 
- // resolveHostAndRegion checks the host and region and returns the resolved base URL
- func resolveHostAndRegion(host, region string, hostMappings map[string]string) (string, error) {
-     // If host is empty, we check the region
-     if host == "" {
-         if region != "" {
-             // Check if region exists in the mappings
-             if mappedHost, exists := hostMappings[region]; exists {
-                 return mappedHost, nil
-             } else {
-                 // Invalid region, return error and show available regions
-                 availableRegions := make([]string, 0, len(hostMappings))
-                 for key := range hostMappings {
-                     availableRegions = append(availableRegions, key)
-                 }
-                 return "", fmt.Errorf("Invalid region name: %s. Available regions: %s", region, strings.Join(availableRegions, ", "))
-             }
-         } else {
-             // If neither host nor region are provided, default to the global host
-             return hostMappings["global"], nil
-         }
-     } else {
-         // If both region and host are provided, prioritize host and ignore region
-         fmt.Printf("Both region and host provided. Using host URL: %s, ignoring region\n", host)
-         // Validate the host is a proper URL
-         _, err := url.ParseRequestURI(host)
-         if err != nil {
-             return "", fmt.Errorf("invalid host URL: %s", host)
-         }
-         return host, nil
-     }
- }
+// resolveHostAndRegion checks the host and region and returns the resolved base URL
+func resolveHostAndRegion(host, region string, hostMappings map[string]string) (string, error) {
+    // If both region and host are provided, prioritize host and ignore region
+    if host != "" {
+        fmt.Printf("Both region and host provided. Using host URL: %s, ignoring region\n", host)
+        // Validate the host is a proper URL
+        _, err := url.ParseRequestURI(host)
+        if err != nil {
+            return "", fmt.Errorf("invalid host URL: %s", host)
+        }
+        return host, nil
+    }
+
+    // If region is provided, map it to the host URL
+    if region != "" {
+        if mappedHost, exists := hostMappings[region]; exists {
+            return mappedHost, nil
+        }
+        // Invalid region, return error and show available regions
+        availableRegions := make([]string, 0, len(hostMappings))
+        for key := range hostMappings {
+            availableRegions = append(availableRegions, key)
+        }
+        return "", fmt.Errorf("invalid region name: %s. Available regions: %s", region, strings.Join(availableRegions, ", "))
+    }
+
+    // If neither host nor region are provided, default to the global host
+    return hostMappings["global"], nil
+}
 
 
 func getClient() *appknox.Client {
