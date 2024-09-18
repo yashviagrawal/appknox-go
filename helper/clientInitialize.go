@@ -33,8 +33,8 @@ func getAppknoxAccessToken() string {
      }
  }
 
-// resolveHostAndRegion checks the host and region and returns the resolved base URL
-func resolveHostAndRegion(host, region string, hostMappings map[string]string) (string, error) {
+// ResolveHostAndRegion checks the host and region and returns the resolved base URL
+func ResolveHostAndRegion(host, region string, hostMappings map[string]string) (string, error) {
     // If both region and host are provided, prioritize host and ignore region
     if host != "" {
         fmt.Printf("Both region and host provided. Using host URL: %s, ignoring region\n", host)
@@ -56,7 +56,7 @@ func resolveHostAndRegion(host, region string, hostMappings map[string]string) (
         for key := range hostMappings {
             availableRegions = append(availableRegions, key)
         }
-        return "", fmt.Errorf("invalid region name: %s. Available regions: %s", region, strings.Join(availableRegions, ", "))
+        return "", fmt.Errorf("Invalid region name: %s. Available regions: %s", region, strings.Join(availableRegions, ", "))
     }
 
     // If neither host nor region are provided, default to the global host
@@ -75,7 +75,7 @@ func getClient() *appknox.Client {
     hostMappings := GetHostMappings()
 
     // Use the new function to resolve the host and region
-	resolvedHost, err := resolveHostAndRegion(host, region, hostMappings)
+	resolvedHost, err := ResolveHostAndRegion(host, region, hostMappings)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
