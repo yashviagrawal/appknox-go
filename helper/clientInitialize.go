@@ -37,7 +37,6 @@ func getAppknoxAccessToken() string {
 func ResolveHostAndRegion(host, region string, hostMappings map[string]string) (string, error) {
     // If both region and host are provided, prioritize host and ignore region
     if host != "" {
-        fmt.Printf("Both region and host provided. Using host URL: %s, ignoring region\n", host)
         // Validate the host is a proper URL
         _, err := url.ParseRequestURI(host)
         if err != nil {
