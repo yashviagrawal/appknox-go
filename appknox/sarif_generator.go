@@ -13,6 +13,7 @@ import (
 	"github.com/iancoleman/strcase"
 	"github.com/vbauerster/mpb/v4"
 	"github.com/vbauerster/mpb/v4/decor"
+	"github.com/spf13/viper"
 )
 
 type SARIF struct {
@@ -109,7 +110,7 @@ func GenerateSARIFGivenFileID(client *Client, fileID int, riskThreshold int) (SA
 			decor.Name("] "),
 		),
 	)
-
+	
 	for sarifReportProgess < 100 {
 		file, _, err := client.Files.GetByID(ctx, fileID)
 		if err != nil {
@@ -118,7 +119,8 @@ func GenerateSARIFGivenFileID(client *Client, fileID int, riskThreshold int) (SA
 		}
 		sarifReportProgess = file.StaticScanProgress
 		bar.SetCurrent(int64(sarifReportProgess), time.Since(start))
-		if time.Since(start) > 15*time.Minute {
+		
+		if time.Since(start) > time.Duration(viper.GetInt("timeout")) * time.Minute {
 			err := errors.New("Request timed out")
 			PrintError(err)
 			os.Exit(1)

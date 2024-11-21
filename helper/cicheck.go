@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"os"
 	"time"
-
+	
 	"github.com/appknox/appknox-go/appknox"
 	"github.com/appknox/appknox-go/appknox/enums"
+	"github.com/spf13/viper"
 	"github.com/cheynewallace/tabby"
 	"github.com/vbauerster/mpb/v4"
 	"github.com/vbauerster/mpb/v4/decor"
@@ -20,6 +21,9 @@ func ProcessCiCheck(fileID, riskThreshold int) {
 	client := getClient()
 	var staticScanProgess int
 	start := time.Now()
+	timeoutMinutes := viper.GetInt("timeout")
+	timeout := time.Duration(timeoutMinutes) * time.Minute
+	fmt.Printf("Starting scan at: %v with timeout of %d minutes\n", start.Format(time.RFC3339), timeoutMinutes)
 	p := mpb.New(
 		mpb.WithWidth(60),
 		mpb.WithRefreshRate(180*time.Millisecond),
@@ -44,7 +48,8 @@ func ProcessCiCheck(fileID, riskThreshold int) {
 		}
 		staticScanProgess = file.StaticScanProgress
 		bar.SetCurrent(int64(staticScanProgess), time.Since(start))
-		if time.Since(start) > 30*time.Minute {
+		
+		if time.Since(start) > timeout {
 			err := errors.New("Request timed out")
 			PrintError(err)
 			os.Exit(1)
