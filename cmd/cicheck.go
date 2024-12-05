@@ -58,6 +58,6 @@ func init() {
 	cicheckCmd.Flags().StringP(
 		"risk-threshold", "r", "low", "Risk threshold to fail the command. Available options: low, medium, high")
 	cicheckCmd.Flags().IntP(
-			"sast-timeout", "t", 30, "Timeout in minutes for the CI check (default: 30)")
+			"sast-timeout", "t", 30, "Static scan timeout in minutes for the CI check (default: 30)")
 	
 }
