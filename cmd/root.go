@@ -40,10 +40,6 @@ func init() {
     viper.BindEnv("host", "APPKNOX_API_HOST")
 
 	// Define flags globally here for all subcommands
-	RootCmd.PersistentFlags().String("timeout", "", "Timeout for Appknox scanner, default is 30 minutes")
-	viper.BindPFlag("timeout", RootCmd.PersistentFlags().Lookup("timeout"))
-	viper.BindEnv("timeout", "APPKNOX_TIMEOUT")
-	viper.SetDefault("timeout", "30") // Default to 30 minutes
 	RootCmd.PersistentFlags().String("region", "", "Region names, e.g., global, saudi, uae. By default, global is used")
     viper.BindPFlag("region", RootCmd.PersistentFlags().Lookup("region"))
     viper.BindEnv("region", "APPKNOX_API_REGION")

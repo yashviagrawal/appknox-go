@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/appknox/appknox-go/helper"
 	"github.com/spf13/cobra"
@@ -45,7 +46,10 @@ var cicheckCmd = &cobra.Command{
 			helper.PrintError(err)
 			os.Exit(1)
 		}
-		helper.ProcessCiCheck(fileID, riskThresholdInt)
+		timeoutMinutes, _ := cmd.Flags().GetInt("sast-timeout")
+		timeout := time.Duration(timeoutMinutes) * time.Minute
+		
+		helper.ProcessCiCheck(fileID, riskThresholdInt, timeout)
 	},
 }
 
@@ -53,4 +57,7 @@ func init() {
 	RootCmd.AddCommand(cicheckCmd)
 	cicheckCmd.Flags().StringP(
 		"risk-threshold", "r", "low", "Risk threshold to fail the command. Available options: low, medium, high")
+	cicheckCmd.Flags().IntP(
+			"sast-timeout", "t", 30, "Timeout in minutes for the CI check (default: 30)")
+	
 }
