@@ -46,7 +46,7 @@ var cicheckCmd = &cobra.Command{
 			helper.PrintError(err)
 			os.Exit(1)
 		}
-		timeoutMinutes, _ := cmd.Flags().GetInt("sast-timeout")
+		timeoutMinutes, _ := cmd.Flags().GetInt("timeout")
 		timeout := time.Duration(timeoutMinutes) * time.Minute
 		
 		helper.ProcessCiCheck(fileID, riskThresholdInt, timeout)
@@ -58,6 +58,6 @@ func init() {
 	cicheckCmd.Flags().StringP(
 		"risk-threshold", "r", "low", "Risk threshold to fail the command. Available options: low, medium, high")
 	cicheckCmd.Flags().IntP(
-			"sast-timeout", "t", 30, "Static scan timeout in minutes for the CI check (default: 30)")
+			"timeout", "t", 30, "Static scan timeout in minutes for the CI check (default: 30)")
 	
 }
