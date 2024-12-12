@@ -3,13 +3,14 @@ package helper
 import (
 	"fmt"
 	"os"
-
+	"time"
+	
 	"github.com/appknox/appknox-go/appknox"
 )
 
-func ConvertToSARIFReport(fileID int, riskThreshold int, filePath string) error {
+func ConvertToSARIFReport(fileID int, riskThreshold int, filePath string,staticScanTimeout time.Duration) error {
 	client := getClient()
-	sarif, err := appknox.GenerateSARIFGivenFileID(client, fileID, riskThreshold)
+	sarif, err := appknox.GenerateSARIFGivenFileID(client, fileID, riskThreshold,staticScanTimeout)
 	if err != nil {
 		return err
 	}

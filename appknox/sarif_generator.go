@@ -90,7 +90,7 @@ type Help struct {
 	Markdown string `json:"markdown,omitempty"`
 }
 
-func GenerateSARIFGivenFileID(client *Client, fileID int, riskThreshold int) (SARIF, error) {
+func GenerateSARIFGivenFileID(client *Client, fileID int, riskThreshold int,staticScanTimeout time.Duration) (SARIF, error) {
 	ctx := context.Background()
 	var sarifReportProgess int
 	start := time.Now()
@@ -109,7 +109,7 @@ func GenerateSARIFGivenFileID(client *Client, fileID int, riskThreshold int) (SA
 			decor.Name("] "),
 		),
 	)
-
+	
 	for sarifReportProgess < 100 {
 		file, _, err := client.Files.GetByID(ctx, fileID)
 		if err != nil {
@@ -118,7 +118,8 @@ func GenerateSARIFGivenFileID(client *Client, fileID int, riskThreshold int) (SA
 		}
 		sarifReportProgess = file.StaticScanProgress
 		bar.SetCurrent(int64(sarifReportProgess), time.Since(start))
-		if time.Since(start) > 15*time.Minute {
+		
+		if time.Since(start) > staticScanTimeout {
 			err := errors.New("Request timed out")
 			PrintError(err)
 			os.Exit(1)
@@ -263,7 +264,7 @@ func GenerateSARIFGivenFileID(client *Client, fileID int, riskThreshold int) (SA
 }
 
 func PrintError(err error) {
-	panic("unimplemented")
+	panic(err)
 }
 
 func GenerateSARIFFileContent(sarif SARIF) (string, error) {

@@ -5,7 +5,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
+	"time"
+	
 	"github.com/appknox/appknox-go/helper"
 	"github.com/spf13/cobra"
 )
@@ -45,7 +46,9 @@ var sarifCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		outputFilePath, _ := cmd.Flags().GetString("output")
-		helper.ConvertToSARIFReport(fileID,riskThresholdInt,outputFilePath)
+		timeoutMinutes, _ := cmd.Flags().GetInt("timeout")
+		timeout := time.Duration(timeoutMinutes) * time.Minute
+		helper.ConvertToSARIFReport(fileID,riskThresholdInt,outputFilePath,timeout)
 	},
 }
 
@@ -54,4 +57,6 @@ func init() {
 	sarifCmd.Flags().StringP(
 		"risk-threshold", "r", "low", "Risk threshold to fail the command. Available options: low, medium, high")
 	sarifCmd.PersistentFlags().StringP("output", "o", "report.sarif", "Output file path to save reports")
+	sarifCmd.Flags().IntP(
+		"timeout", "t", 30, "Static scan timeout in minutes for the CI check (default: 30)")
 }
