@@ -104,7 +104,9 @@ func getClient() *appknox.Client {
     return client
 }
 
-
+func GetClient() *appknox.Client {
+    return getClient()
+}
 
 // CheckToken checks if access token is valid.
 func CheckToken() (*appknox.Me, error) {
