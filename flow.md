@@ -1,5 +1,3 @@
-# Dynamic Check Flow
-
 ```mermaid
 flowchart TB
     A[Start: RunDastCheck(fileID, riskThreshold)] --> B[Get dynamic_status from /files/:file_id]
