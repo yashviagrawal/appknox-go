@@ -44,15 +44,14 @@ type analysisResponse struct {
 
 // ----------------------- Public Entry Point -----------------------
 
-// RunDastCheck is the single entry point that the dastcheck CLI command calls.
-//
-// It obtains the client (from clientinitialize.go) and then checks
-// dynamic_status to decide if a scan is none/inqueue/in-progress/etc.
+// RunDastCheck is the single entry point that the `dastcheck` CLI command calls.
+// It obtains the client from clientinitialize.go, checks dynamic_status, then
+// either prints "in queue" or calls `handleDynamicScan` for further logic.
 func RunDastCheck(fileID string, riskThreshold int) error {
-    // 1. Obtain the client from clientinitialize.go
-    client := GetClient() // <-- Replace with the function you have in clientinitialize.go
+    // 1. Obtain the client from your clientinitialize.go (use your actual function name)
+    client := GetClient()
 
-    // 2. Check the file's dynamic_status
+    // 2. Check the file's dynamic_status (0=NONE, 1=INQUEUE, others=>in-progress)
     dynamicStatus, err := getFileDynamicStatus(client, fileID)
     if err != nil {
         return err
@@ -65,13 +64,10 @@ func RunDastCheck(fileID string, riskThreshold int) error {
         fmt.Println("Status: inqueue")
         return nil
 
-    case 0:
-        // NONE => Check if there's a historical scan; if none, print "No dynamic scan".
-        return handleDynamicStatusNone(client, fileID, riskThreshold)
-
     default:
-        // For anything else, check if it's in-progress or completed
-        return handleDynamicStatusInProgress(client, fileID, riskThreshold)
+        // For 0 (NONE) or anything else (2..9):
+        // unify logic by calling `handleDynamicScan`
+        return handleDynamicScan(client, fileID, riskThreshold)
     }
 }
 
@@ -104,24 +100,31 @@ func getFileDynamicStatus(client *appknox.Client, fileID string) (int, error) {
     return response.DynamicStatus, nil
 }
 
-// handleDynamicStatusNone deals with dynamic_status == 0
-func handleDynamicStatusNone(client *appknox.Client, fileID string, riskThreshold int) error {
+
+// 1) Get the latest dynamic scan
+// 2) If none => print "No dynamic scan" and return
+// 3) If status=22 => "completed", show vulnerabilities
+// 4) If status=23/24/25 => "ended" + error
+// 5) Otherwise => poll
+func handleDynamicScan(client *appknox.Client, fileID string, riskThreshold int) error {
     scanInfo, err := getLatestDynamicScan(client, fileID)
     if err != nil {
         return err
     }
 
+    // If no scan found at all
     if scanInfo == nil {
-        // No historical scans found
         fmt.Println("No dynamic scan is running for the file.")
         return nil
     }
 
+    // Now check the status
     switch scanInfo.Status {
     case 22:
         // ANALYSIS_COMPLETED
         fmt.Println("Dynamic scan has completed successfully.")
         return showDynamicVulnerabilities(client, fileID, riskThreshold)
+
     case 23, 24, 25:
         // TIMED_OUT, ERROR, CANCELLED
         fmt.Printf("Dynamic scan ended with status %d\n", scanInfo.Status)
@@ -129,40 +132,16 @@ func handleDynamicStatusNone(client *appknox.Client, fileID string, riskThreshol
             fmt.Printf("Error message: %s\n", scanInfo.ErrorMessage)
         }
         return nil
-    default:
-        fmt.Printf("Dynamic scan is in progress (status=%d). Polling...\n", scanInfo.Status)
-        return pollUntilFinished(client, fileID, scanInfo, riskThreshold)
-    }
-}
 
-// handleDynamicStatusInProgress deals with scenario 2 (dynamic_status != 0 or 1)
-func handleDynamicStatusInProgress(client *appknox.Client, fileID string, riskThreshold int) error {
-    scanInfo, err := getLatestDynamicScan(client, fileID)
-    if err != nil {
-        return err
-    }
-    if scanInfo == nil {
-        fmt.Println("No dynamic scan is currently running.")
-        return nil
-    }
-
-    switch scanInfo.Status {
-    case 22:
-        fmt.Println("Dynamic scan has completed successfully.")
-        return showDynamicVulnerabilities(client, fileID, riskThreshold)
-    case 23, 24, 25:
-        fmt.Printf("Dynamic scan ended with status %d\n", scanInfo.Status)
-        if scanInfo.ErrorMessage != "" {
-            fmt.Printf("Error message: %s\n", scanInfo.ErrorMessage)
-        }
-        return nil
     default:
+        // in progress => poll until finished
         fmt.Printf("Dynamic scan is in progress (status=%d). Polling...\n", scanInfo.Status)
         return pollUntilFinished(client, fileID, scanInfo, riskThreshold)
     }
 }
 
 // pollUntilFinished polls /api/v2/files/:file_id/dynamicscans every 60s
+// until the scan is in a terminating state (22/23/24/25) or no scan is found.
 func pollUntilFinished(client *appknox.Client, fileID string, initialScan *DynamicScan, riskThreshold int) error {
     currentStatus := initialScan.Status
 
@@ -173,11 +152,13 @@ func pollUntilFinished(client *appknox.Client, fileID string, initialScan *Dynam
         if err != nil {
             return err
         }
+
         if scanInfo == nil {
             fmt.Println("No dynamic scan is running for the file.")
             return nil
         }
 
+        // If status changed, print the change
         if scanInfo.Status != currentStatus {
             fmt.Printf("Status changed from %d to %d\n", currentStatus, scanInfo.Status)
             currentStatus = scanInfo.Status
@@ -187,12 +168,14 @@ func pollUntilFinished(client *appknox.Client, fileID string, initialScan *Dynam
         case 22:
             fmt.Println("Dynamic scan has completed successfully.")
             return showDynamicVulnerabilities(client, fileID, riskThreshold)
+
         case 23, 24, 25:
             fmt.Printf("Dynamic scan ended with status %d\n", scanInfo.Status)
             if scanInfo.ErrorMessage != "" {
                 fmt.Printf("Error message: %s\n", scanInfo.ErrorMessage)
             }
             return nil
+
         default:
             fmt.Printf("Dynamic scan is still in progress (status=%d)\n", scanInfo.Status)
         }
