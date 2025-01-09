@@ -7,10 +7,8 @@ import (
     "github.com/appknox/appknox-go/helper"
 )
 
-// riskThreshold is set via the --risk-threshold flag
 var riskThreshold int
 
-// dastCheckCmd represents the "dastcheck" command
 var dastCheckCmd = &cobra.Command{
     Use:   "dastcheck <file_id>",
     Short: "Check the status of a DAST scan for the specified file",
@@ -22,7 +20,6 @@ You can also filter vulnerabilities by using --risk-threshold <int>.`,
     RunE: func(cmd *cobra.Command, args []string) error {
         fileID := args[0]
 
-        // Call the single helper function that does everything
         if err := helper.RunDastCheck(fileID, riskThreshold); err != nil {
             return fmt.Errorf("dastcheck command failed: %v", err)
         }
@@ -31,10 +28,8 @@ You can also filter vulnerabilities by using --risk-threshold <int>.`,
 }
 
 func init() {
-    // Assuming your root.go defines var RootCmd = &cobra.Command{...}
     RootCmd.AddCommand(dastCheckCmd)
 
-    // Add the --risk-threshold flag
     dastCheckCmd.Flags().IntVar(
         &riskThreshold,
         "risk-threshold",
