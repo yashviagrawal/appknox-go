@@ -9,11 +9,11 @@ import (
 	"github.com/appknox/appknox-go/appknox/enums"
 )
 
-// AnalysesService handles communication with the analyses related
+// DynamicScanService handles communication with the dynamic scan (DAST) related
 // methods of the Appknox API.
 type DynamicScanService service
 
-// DRFResponseAnalysis represents for drf response of the Appknox analyses api.
+// DRFResponseDynamicScan represents the DRF response for the Appknox dynamic scan API.
 type DRFResponseDynamicScan struct {
 	Count    int            `json:"count,omitempty"`
 	Next     string         `json:"next,omitempty"`
@@ -21,15 +21,15 @@ type DRFResponseDynamicScan struct {
 	Results  []*DynamicScan `json:"results"`
 }
 
-// AnalysisResponse is a wrapper on DRFResponseAnalysis which will help
-// to execute further operations on DRFResponseAnalysis.
+// DynamicScanResponse is a wrapper on DRFResponseDynamicScan which helps
+// to execute further operations on DRFResponseDynamicScan results.
 type DynamicScanResponse struct {
 	r *DRFResponseDynamicScan
 	s *DynamicScanService
 	c *context.Context
 }
 
-// Analysis represents the appknox file analysis.
+// DynamicScan represents a single dynamic scan object (DAST) in Appknox.
 type DynamicScan struct {
 	ID                       int                         `json:"id,omitempty"`
 	File                     int                         `json:"file,omitempty"`
@@ -48,10 +48,7 @@ type DynamicScan struct {
 	IsAnalysisDone           bool                        `json:"is_analysis_done,omitempty"`
 }
 
-// AnalysisListOptions specifies the optional parameters to the
-// AnalysesService.List method.
-
-// ListByFile lists the analyses for a file.
+// ListByFile lists the dynamic scans for a given file ID.
 func (s *DynamicScanService) ListByFile(ctx context.Context, fileID int) ([]*DynamicScan, *DynamicScanResponse, error) {
 	u := fmt.Sprintf("api/v2/files/%v/dynamicscans", fileID)
 	req, err := s.client.NewRequest(http.MethodGet, u, nil)
@@ -72,6 +69,8 @@ func (s *DynamicScanService) ListByFile(ctx context.Context, fileID int) ([]*Dyn
 	return drfResponse.Results, &resp, nil
 }
 
+// ScheduleDastAutomation sends a POST request to schedule a DAST automation
+// for the specified file ID.
 func (s *DynamicScanService) ScheduleDastAutomation(ctx context.Context, fileID int) (*Response, error) {
 	u := fmt.Sprintf("/api/dynamicscan/%d/schedule_automation", fileID)
 	req, err := s.client.NewRequest(http.MethodPost, u, nil)

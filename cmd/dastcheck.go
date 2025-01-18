@@ -61,5 +61,5 @@ func init() {
 
 	// Add the --risk-threshold flag
 	dastCheckCmd.Flags().StringP(
-		"risk-threshold", "r", "low", "Risk threshold to fail the command. Available options: low, medium, high")
+		"risk-threshold", "r", "low", "Risk threshold to fail the command. Available options: low, medium, high, critical")
 }

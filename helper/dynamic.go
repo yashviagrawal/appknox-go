@@ -10,7 +10,7 @@ import (
 // It returns nil on success (204), or an error if there's a known/unknown problem.
 func ScheduleDastAutomation(fileID int) error {
 	// 1. Get your client — either an exported or unexported function from clientinitialize.go
-	client := getClient() // or GetClient() if exported
+	client := getClient()
 
 	resp, err := client.DynamicScans.ScheduleDastAutomation(context.Background(), fileID)
 	if err != nil {
